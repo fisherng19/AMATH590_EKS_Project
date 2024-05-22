@@ -33,12 +33,11 @@ ylim([85,115])
 title('Initial Ensemble Distribution')
 xlabel('u1');
 ylabel('u2');
-grid on
 
 %% Iterate to Converge to an Approximation of the True Distribution
 
 for i = 1:n_max
-    G_un = Gx(u_n(1,:),u_n(2,:));               % Compute the y-values predicted by the ensemble values
+    G_un = Gx(u_n(1,:),u_n(2,:));               % Compute the y-
     Gbar = mean(G_un,2);                        % Update the average y-value predicted by the ensemble 
     in_prod = (G_un - Gbar)'*(Gamma\(G_un-y));  % Compute the inner product of the ensemble relative to its average versus the ensemble relative to the true y
     dtn = dt0/(norm(in_prod,"fro")+eps);        % Compute adaptive time step
@@ -59,7 +58,3 @@ figure(2)
 plot(u_n(1,:),u_n(2,:),'.')
 xlim([-4,-1.5])
 ylim([103,106])
-grid on
-title('Final Ensemble Distribution')
-xlabel('u1');
-ylabel('u2');
