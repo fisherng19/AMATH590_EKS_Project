@@ -129,6 +129,24 @@ for i = 2:n_max
 end
 u_HV = u_n;         % Compute final ensemble prediction
 
+%% EKI
+u_n = u_ensemble;               % Initialize ensemble of particles at step 0
+err_EKI = zeros(1,n_max);        % Initialize vector of y error values
+for i = 2:n_max
+    G_un = Gx(u_n);
+    Gbar = mean(G_un,2);                        % Update the average y-value predicted by the ensemble 
+    in_prod = (G_un - Gbar)'*(Gamma\(G_un-y));  % Compute the inner product of the ensemble relative to its average versus the ensemble relative to the true y
+    dtn = dt0/(norm(in_prod,"fro")+eps);        % Compute adaptive time step
+    mean_adj = dtn/J*u_n*in_prod;               % Compute the term used to adjust the means to match the true distribution
+    ubar = mean(u_n,2);                         % Compute the average ensemble coefficient values
+    cov_U = Id;                                 % Compute the covariance matrix of the ensemble
+    u_n = u_n - mean_adj;                       % Update the mean-improvement iterate
+
+    % Compute error values for each iterate
+    err_EKI(i) = mean(vecnorm((y-G_un).*(Gamma\(y-G_un)),1,1));
+end
+u_EKI = u_n;         % Compute final ensemble prediction
+
 %% Plot the Initial and Final Ensemble Distributions Side-by-Side
 figure(1)
 subplot(1,2,1);
@@ -154,6 +172,7 @@ subplot(1,2,2);
 plot(u_EKS(1,:),u_EKS(2,:),'.','MarkerSize',7.5,'DisplayName','EKS')
 hold on
 plot(u_HV(1,:),u_HV(2,:),'.','MarkerSize',5,'DisplayName','EKI (Herty and Visconti)')
+plot(u_EKI(1,:),u_EKI(2,:),'.','MarkerSize',5,'DisplayName','EKI')
 if Ex_num == 1
     plot(u_dagger(1),u_dagger(2),'.k','MarkerSize',15,'DisplayName','$u^\dagger$');
 end
