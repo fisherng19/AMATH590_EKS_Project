@@ -3,7 +3,7 @@
 % Goal: Find u1, u2 knowing y data
 
 %% Set Up
-Ex_num = 1;         % Choose the example number to run
+Ex_num = 2;         % Choose the example number to run
 
 n_max = 30;         % Total number of iterations (matches choice from paper)
 J = 1000;           % Number of ensemble particles
@@ -160,19 +160,20 @@ if Ex_num == 2
     xlim([-3,3])
     ylim([85,115])
 end
-title('Initial Ensemble Distribution')
+title('Initial Ensemble Distribution','Interpreter','latex')
 lgd1a = legend;
 legend show
 set(lgd1a,'Interpreter','latex');
 xlabel('$u_1$','Interpreter','latex');
 ylabel('$u_2$','Interpreter','latex');
 grid on
+pbaspect([1 1 1])
 
 subplot(1,2,2);
 plot(u_EKS(1,:),u_EKS(2,:),'.','MarkerSize',7.5,'DisplayName','EKS')
 hold on
 plot(u_HV(1,:),u_HV(2,:),'.','MarkerSize',5,'DisplayName','EKI (Herty and Visconti)')
-plot(u_EKI(1,:),u_EKI(2,:),'.','MarkerSize',5,'DisplayName','EKI')
+plot(u_EKI(1,:),u_EKI(2,:),'.','MarkerSize',10,'DisplayName','EKI (Noise-Free)')
 if Ex_num == 1
     plot(u_dagger(1),u_dagger(2),'.k','MarkerSize',15,'DisplayName','$u^\dagger$');
 end
@@ -182,19 +183,20 @@ if Ex_num == 2
     ylim([103,106])
 end
 grid on
-title('Final Ensemble Distribution')
+title('Final Ensemble Distribution','Interpreter','latex')
 lgd1b = legend;
 legend show
 set(lgd1b,'Interpreter','latex');
 xlabel('$u_1$','Interpreter','latex');
 ylabel('$u_2$','Interpreter','latex');
+pbaspect([1 1 1])
 
-saveas(gcf,'EKS_Ex1.png')
+saveas(gcf,['Ex',num2str(Ex_num),'_Initial_vs_Final.png'])
 
 %% Plot the Rough Area in Which the Data lives at each iterate
 figure(2)
 plot(u_ensemble(1,:),u_ensemble(2,:),'.','DisplayName','N = 0')
-title('Distribution Domain of the Ensemble Points vs. Iterations')
+title('Distribution Domain of the Ensemble Points vs. Iterations','Interpreter','latex')
 hold on
 skip = 3;
 idx = 3:skip:n_max;
@@ -207,33 +209,41 @@ end
 if Ex_num == 1
     plot(u_dagger(1),u_dagger(2),'.k','MarkerSize',15,'DisplayName','$u^\dagger$');
 end
-hold off
 lgd = legend;
 legend show
 set(lgd,'Interpreter','latex');
-xlabel('u_1');
-ylabel('u_2');
+xlabel('u_1','Interpreter','latex');
+ylabel('u_2','Interpreter','latex');
+grid on
+hold off
+
+saveas(gcf,['Ex',num2str(Ex_num),'_EKS_Distribution.png'])
 
 %% Plot the Error/Convergence over Iterations
-figure(4)
-semilogy(1:n_max,err_EKS,'LineWidth',2.5)
+figure(3)
+semilogy(1:n_max,err_EKS,'LineWidth', 2.5, 'DisplayName', 'Ensemble Kalman Sampler')
 hold on
-semilogy(1:n_max,err_HV,'LineWidth',2.5)
+semilogy(1:n_max,err_HV,'LineWidth', 2.5, 'DisplayName', 'Ensemble Kalman Inversion (Herty and Visconti)')
+semilogy(1:n_max,err_EKI,'LineWidth', 2.5, 'DisplayName', 'Ensemble Kalman Inversion (Noise-Free)')
 hold off
 grid on
-title('Ensemble Error vs. Iterates')
+title('Ensemble Error vs. Iterates', 'Interpreter','latex')
 xlabel('Iterate [N]','Interpreter','latex');
 ylabel('Error $\frac{1}{J} \Sigma_{j = 1}^J |y - G(u_j)|_\Gamma^2$','Interpreter','latex')
-legend('Ensemble Kalman Sampler','Ensemble Kalman Inversion (Herty & Visconti)')
+lgd = legend;
+set(lgd,'Interpreter','latex');
+pbaspect([1.5 1 1])
+
+saveas(gcf,['Ex',num2str(Ex_num),'_EKS_Error.png'])
 
 %% Plot the Error vs. Time
-figure(5)
+figure(4)
 semilogy(t_n,err_EKS,'LineWidth',2.5)
 grid on
 hold on
 semilogy(t_n,exp(-2*t_n))
 hold off
-title('Ensemble Error vs. Iterates')
+title('Ensemble Error vs. Iterates','Interpreter','latex')
 xlabel('Time [t = \Sigma_{j=1}^n \Delta t_j]');
 ylabel('Error $\frac{1}{J} \Sigma_{j = 1}^J |y - G(u_j)|_\Gamma^2$','Interpreter','latex')
 %legend('Ensemble Kalman Sampler','Ensemble Kalman Inversion (Herty & Visconti)')
