@@ -5,8 +5,8 @@
 %% Set Up
 Ex_num = 2;         % Choose the example number to run
 
-n_max = 30;         % Total number of iterations (matches choice from paper)
-J = 1000;           % Number of ensemble particles
+n_max = 300;         % Total number of iterations (matches choice from paper)
+J = 250;           % Number of ensemble particles
 
 %% Example Set-ups
 
@@ -26,7 +26,7 @@ if Ex_num == 1
     
     % Ensemble Information
     u_ensemble = normrnd(3,2,[d,J]);            % Create an ensemble vector
-    dt0 = 390;                                  % Define an initial time step empirically
+    dt0 = 10;                                  % Define an initial time step empirically
 
 % Nonlinear Example (Paper)
 % This nonlinear example is from the main EKS paper to reproduce results
@@ -195,29 +195,44 @@ saveas(gcf,['Ex',num2str(Ex_num),'_Initial_vs_Final.png'])
 
 %% Plot the Rough Area in Which the Data lives at each iterate
 figure(2)
-plot(u_ensemble(1,:),u_ensemble(2,:),'.','DisplayName','N = 0')
-title('Distribution Domain of the Ensemble Points vs. Iterations','Interpreter','latex')
-hold on
+% plot(u_ensemble(1,:),u_ensemble(2,:),'.','DisplayName','N = 0')
+% title('Distribution Domain of the Ensemble Points vs. Iterations','Interpreter','latex')
 skip = 3;
-idx = 3:skip:n_max;
+idx = skip:skip:n_max;
 n_idx = length(idx);
+us1 = us_EKS(1,:,skip);
+us2 = us_EKS(2,:,skip);
+scatter(us1,us2,'.','MarkerFaceAlpha',(i/skip-1)/n_idx,'DisplayName',['N = ',num2str(i)])
+xl = gcf().CurrentAxes.XLim;
+yl = gcf().CurrentAxes.YLim;
 for i = idx
     us1 = us_EKS(1,:,i);
     us2 = us_EKS(2,:,i);
-    scatter(us1,us2,'.','MarkerFaceAlpha',(i/skip-1)/n_idx,'DisplayName',['N = ',num2str(i)])
+    scatter(us1,us2,'.','MarkerFaceAlpha',(i/skip-1)/n_idx,'DisplayName','Ensemble Points')
+    xlim(xl);
+    ylim(yl);
+    hold on;
+    plot(mean(us1),mean(us2),'.','Color',"#A2142F", 'MarkerSize',25,'DisplayName','$\bar{u}$');
+    if Ex_num == 1
+        plot(u_dagger(1),u_dagger(2),'.k','MarkerSize',25,'DisplayName','$u^{\dagger}$');
+        legend show
+        legend('Interpreter','latex','FontSize',15)
+    end
+    title("EKS for G(u)=u_1x_1+u_2x_2 with J="+J,'FontSize',15);
+    xlabel("u_1"); ylabel("u_2");
+    hold off;
+    exportgraphics(gcf,"Linear_"+J+"_mean.gif",Append=true)
 end
-if Ex_num == 1
-    plot(u_dagger(1),u_dagger(2),'.k','MarkerSize',15,'DisplayName','$u^\dagger$');
-end
-lgd = legend;
-legend show
-set(lgd,'Interpreter','latex');
-xlabel('u_1','Interpreter','latex');
-ylabel('u_2','Interpreter','latex');
-grid on
-hold off
 
-saveas(gcf,['Ex',num2str(Ex_num),'_EKS_Distribution.png'])
+% lgd = legend;
+% legend show
+% set(lgd,'Interpreter','latex');
+% xlabel('u_1','Interpreter','latex');
+% ylabel('u_2','Interpreter','latex');
+% grid on
+% hold off
+
+% saveas(gcf,['Ex',num2str(Ex_num),'_EKS_Distribution.png'])
 
 %% Plot the Error/Convergence over Iterations
 figure(3)
