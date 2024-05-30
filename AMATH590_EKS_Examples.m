@@ -5,8 +5,8 @@
 %% Set Up
 Ex_num = 2;         % Choose the example number to run
 
-n_max = 300;         % Total number of iterations (matches choice from paper)
-J = 250;           % Number of ensemble particles
+n_max = 500;         % Total number of iterations (matches choice from paper)
+J = 500;           % Number of ensemble particles
 
 %% Example Set-ups
 
@@ -26,7 +26,7 @@ if Ex_num == 1
     
     % Ensemble Information
     u_ensemble = normrnd(3,2,[d,J]);            % Create an ensemble vector
-    dt0 = 10;                                  % Define an initial time step empirically
+    dt0 = 50;                                  % Define an initial time step empirically
 
 % Nonlinear Example (Paper)
 % This nonlinear example is from the main EKS paper to reproduce results
@@ -34,7 +34,7 @@ elseif Ex_num == 2
     % Define the measurement data
     d = 2;                                      % Dimension of spatial vector
     x = [0.25; 0.75];                           % Measurement Location
-    y = [27.5; 79.7];                           % Observed Data
+
     
     % Define the operator
     p_ij = @(x,u) u(2).*x + exp(-u(1)).*(-1/2*(x).^2 + x/2);    % Define the operator component-wise
@@ -42,6 +42,8 @@ elseif Ex_num == 2
     G = @(x,u) [p(x(1),u); p(x(2),u)];                          % Define the operator by its p(x) components
     Gx = @(u) G(x,u);                                           % Define the operator evaluated at the given x
 
+    u_dagger = [normrnd(0,1,[1,1]) ; 90 + 20*rand(1,1)];
+    y = G(x,u_dagger) + normrnd(0,0.1,[d,1]);                           % Observed Data
     % Ensemble information
     u1_ensemble = normrnd(0,1,[1,J]);           % u1 ~ N[0,1]
     u2_ensemble = 90 + 20*rand(1,J);            % u2 ~ U[90,110]
@@ -149,38 +151,39 @@ u_EKI = u_n;         % Compute final ensemble prediction
 
 %% Plot the Initial and Final Ensemble Distributions Side-by-Side
 figure(1)
-subplot(1,2,1);
-plot(u_ensemble(1,:),u_ensemble(2,:),'.','MarkerSize',7.5,'DisplayName','Initial Distribution')
-if Ex_num == 1
-    hold on
-    plot(u_dagger(1),u_dagger(2),'.k','MarkerSize',15,'DisplayName','$u^\dagger$');
-    hold off
-end
-if Ex_num == 2
-    xlim([-3,3])
-    ylim([85,115])
-end
-title('Initial Ensemble Distribution','Interpreter','latex')
-lgd1a = legend;
-legend show
-set(lgd1a,'Interpreter','latex');
-xlabel('$u_1$','Interpreter','latex');
-ylabel('$u_2$','Interpreter','latex');
-grid on
-pbaspect([1 1 1])
+% subplot(1,2,1);
+% plot(u_ensemble(1,:),u_ensemble(2,:),'.','MarkerSize',7.5,'DisplayName','Initial Distribution')
+% if Ex_num == 1
+%     hold on
+%     plot(u_dagger(1),u_dagger(2),'.k','MarkerSize',15,'DisplayName','$u^\dagger$');
+%     hold off
+% end
+% if Ex_num == 2
+%     xlim([-3,3])
+%     ylim([60,120])
+% end
+% title('Initial Ensemble Distribution','Interpreter','latex')
+% lgd1a = legend;
+% legend show
+% set(lgd1a,'Interpreter','latex');
+% xlabel('$u_1$','Interpreter','latex');
+% ylabel('$u_2$','Interpreter','latex');
+% grid on
+% pbaspect([1 1 1])
 
-subplot(1,2,2);
-plot(u_EKS(1,:),u_EKS(2,:),'.','MarkerSize',7.5,'DisplayName','EKS')
-hold on
-plot(u_HV(1,:),u_HV(2,:),'.','MarkerSize',5,'DisplayName','EKI (Herty and Visconti)')
+% subplot(1,2,2);
+clf;
+plot(u_EKS(1,:),u_EKS(2,:),'.','MarkerSize',7.5,'DisplayName','EKS');
+hold on;
+plot(u_HV(1,:),u_HV(2,:),'.','MarkerSize',5,'DisplayName','Noisy EKI (Herty and Visconti)')
 plot(u_EKI(1,:),u_EKI(2,:),'.','MarkerSize',10,'DisplayName','EKI (Noise-Free)')
 if Ex_num == 1
     plot(u_dagger(1),u_dagger(2),'.k','MarkerSize',15,'DisplayName','$u^\dagger$');
 end
-hold off
 if Ex_num == 2
-    xlim([-4,-1.5])
-    ylim([103,106])
+    % xlim([-4,4])
+    % ylim([90,110])
+    plot(u_dagger(1),u_dagger(2),'.k','MarkerSize',15,'DisplayName','$u^\dagger$');
 end
 grid on
 title('Final Ensemble Distribution','Interpreter','latex')
@@ -190,6 +193,7 @@ set(lgd1b,'Interpreter','latex');
 xlabel('$u_1$','Interpreter','latex');
 ylabel('$u_2$','Interpreter','latex');
 pbaspect([1 1 1])
+hold off
 
 saveas(gcf,['Ex',num2str(Ex_num),'_Initial_vs_Final.png'])
 
